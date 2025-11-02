@@ -1,0 +1,37 @@
+# Ignore everything by default
+*
+
+# Exceptions: include only these
+!.gitignore
+!shop_flask.py
+!shop_templates/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite database
+*.db
+*.sqlite3
+
+# Flask instance folder
+instance/
+
+# Virtual environments
+venv/
+env/
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Migrations
+migrations/
+
+# Logs
+*.log

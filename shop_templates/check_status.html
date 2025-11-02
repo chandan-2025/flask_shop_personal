@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Check Appointment Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            background-color: #007BFF;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .nav {
+            margin-bottom: 30px;
+        }
+        .nav a button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav">
+        <a href="{{ url_for('home') }}">
+            <button type="button">🏠 Back to Home</button>
+        </a>
+    </div>
+
+    <h1>Check Your Appointment Status</h1>
+
+    <form method="POST">
+        <label for="phone_number">Enter Phone Number:</label><br />
+        <input type="tel" id="phone_number" name="phone_number" placeholder="+1234567890" required /><br />
+        
+        <button type="submit">Check Status</button>
+    </form>
+
+</body>
+</html>

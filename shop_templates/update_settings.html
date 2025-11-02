@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Settings - Soundbox Repair Shop</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #007bff;
+            color: white;
+            padding: 20px 40px;
+            text-align: center;
+        }
+
+        main {
+            padding: 30px 60px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        /* Top Actions - Buttons at top corners */
+        .top-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .top-actions a {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .top-actions a:hover {
+            background-color: #0056b3;
+        }
+
+        /* Form Styles */
+        .settings-form {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .settings-form label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            color: #495057;
+        }
+
+        .settings-form input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1.5px solid #ced4da;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+        }
+
+        .settings-form input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .settings-form button {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            font-weight: 600;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .settings-form button:hover {
+            background-color: #218838;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Update Daily Appointment Limit</h1>
+</header>
+
+<main>
+    <!-- Top Action Buttons -->
+    <div class="top-actions">
+        <a href="{{ url_for('home') }}">🏠 Back to Home</a>
+        <a href="{{ url_for('admin_dashboard') }}">📋 Admin Dashboard</a>
+    </div>
+
+    <form method="POST" class="settings-form">
+        <label for="daily_appointment_limit">Daily Appointment Limit:</label>
+        <input type="number" id="daily_appointment_limit" name="daily_appointment_limit" 
+               value="{{ settings.daily_appointment_limit if settings else 10 }}" required>
+        <button type="submit">Save</button>
+    </form>
+
+</main>
+
+</body>
+</html>

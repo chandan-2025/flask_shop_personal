@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .nav {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .nav a {
+            text-decoration: none;
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: -10px;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav">
+        <a href="{{ url_for('home') }}">
+            <button type="button">🏠 Back to Home</button>
+        </a>
+    </div>
+
+    <h1>Book an Appointment</h1>
+
+    <form id="appointmentForm" method="POST">
+        <label for="customer_name">Name:</label>
+        <input type="text" id="customer_name" name="customer_name" required placeholder="Enter Name">
+        <div id="name-error" class="error"></div>
+
+        <label for="phone_number">Phone Number:</label>
+        <input type="text" id="phone_number" name="phone_number" required placeholder="Enter Phone Number (e.g., 9876543210)">
+        <div id="phone-error" class="error"></div>
+
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address" required placeholder="Enter Address">
+        <div id="address-error" class="error"></div>
+
+        <label for="device">Device:</label>
+        <input type="text" id="device" name="device" required placeholder="Enter Device">
+        <div id="device-error" class="error"></div>
+
+        <label for="problem">Problem:</label>
+        <textarea id="problem" name="problem" rows="4" required placeholder="Enter Problem Description"></textarea>
+        <div id="problem-error" class="error"></div>
+
+        <label for="appointment_date">Appointment Date:</label>
+        <input type="datetime-local" id="appointment_date" name="appointment_date" required>
+        <div id="appointment-date-error" class="error"></div>
+
+        <button type="submit">📅 Book Appointment</button>
+    </form>
+
+    <script>
+        // Set the min attribute dynamically to the current date and time
+        document.addEventListener("DOMContentLoaded", function() {
+            let now = new Date();
+            let year = now.getFullYear();
+            let month = ("0" + (now.getMonth() + 1)).slice(-2); // Add leading zero
+            let day = ("0" + now.getDate()).slice(-2); // Add leading zero
+            let hours = ("0" + now.getHours()).slice(-2); // Add leading zero
+            let minutes = ("0" + now.getMinutes()).slice(-2); // Add leading zero
+            let currentDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+            document.getElementById('appointment_date').setAttribute('min', currentDateTime);
+        });
+
+        // Form validation
+        document.getElementById('appointmentForm').addEventListener('submit', function(event) {
+            let isValid = true;
+
+            // Clear previous error messages
+            const errorFields = document.querySelectorAll('.error');
+            errorFields.forEach(field => {
+                field.textContent = '';
+            });
+
+            // Validate Name (No special characters)
+            const name = document.getElementById('customer_name').value;
+            const nameRegex = /^[A-Za-z\s]+$/; // Only letters and spaces
+            if (!name.match(nameRegex)) {
+                isValid = false;
+                document.getElementById('name-error').textContent = 'Please enter a valid name (letters and spaces only).';
+            }
+
+            // Validate Phone Number (India-specific)
+            const phoneNumber = document.getElementById('phone_number').value;
+            const phoneRegex = /^[6-9]\d{9}$/; // Starts with 6,7,8,9 and followed by 9 digits
+            if (!phoneNumber.match(phoneRegex)) {
+                isValid = false;
+                document.getElementById('phone-error').textContent = 'Please enter a valid Indian phone number (e.g., 9876543210).';
+            }
+
+            // Validate Device (No special characters)
+            const device = document.getElementById('device').value;
+            const deviceRegex = /^[A-Za-z0-9\s]+$/; // Only alphanumeric and spaces
+            if (!device.match(deviceRegex)) {
+                isValid = false;
+                document.getElementById('device-error').textContent = 'Please enter a valid device name (letters, numbers, and spaces only).';
+            }
+
+            // Validate Problem
+            const problem = document.getElementById('problem').value;
+            if (problem.trim() === '') {
+                isValid = false;
+                document.getElementById('problem-error').textContent = 'Please describe the problem.';
+            }
+
+            // Validate Appointment Date
+            const appointmentDate = document.getElementById('appointment_date').value;
+            if (appointmentDate.trim() === '') {
+                isValid = false;
+                document.getElementById('appointment-date-error').textContent = 'Please select an appointment date.';
+            }
+
+            // If the form is invalid, prevent submission
+            if (!isValid) {
+                event.preventDefault(); // Stop the form from submitting
+            }
+        });
+    </script>
+
+</body>
+</html>
