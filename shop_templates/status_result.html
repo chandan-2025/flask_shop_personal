@@ -3,52 +3,199 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Appointment Status</title>
+    <title>Appointment Status | Soundbox Repair Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
     <style>
+        :root {
+            --bg-primary: #181c23;
+            --bg-secondary: #21252e;
+            --text-main: #e4e6eb;
+            --text-muted: #a0a4ab;
+            --accent-teal: #1dbfa8;
+            --error-red: #ff4466;
+            --card-bg: #1f232b;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --btn-bg: #1dbfa8;
+            --btn-hover: #19a893;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
             max-width: 700px;
             margin: 40px auto;
-            padding: 0 20px;
+            padding: 0 20px 40px;
+            box-sizing: border-box;
         }
+
         h1 {
             text-align: center;
             margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 2.4rem;
+            color: var(--accent-teal);
+            letter-spacing: 0.5px;
         }
+
         .button-row {
             text-align: center;
             margin-bottom: 30px;
         }
+
         .button-row a {
-            margin: 0 10px;
+            margin: 0 12px;
+            text-decoration: none;
         }
+
         .button-row button {
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 16px;
-            background-color: #007BFF;
+            background-color: var(--btn-bg);
             border: none;
-            color: white;
+            color: var(--bg-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            min-width: 160px;
+        }
+
+        .button-row button:hover {
+            background-color: var(--btn-hover);
+            transform: scale(1.05);
+        }
+
+        .appointment-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+        }
+
+        .appointment-card p {
+            /* Step 1: Make the paragraph a flex container */
+            display: flex;
+            margin: 8px 0;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            gap: 10px; /* Adds space between label and value */
+        }
+
+        .appointment-card p strong {
+         /* Step 2: Set a fixed, consistent width for ALL labels */
+        /* I increased the width slightly to accommodate the longest label: "Appointment Date:" */
+        flex-shrink: 0; /* Prevents the label from shrinking */
+        width: 180px; /* Set a consistent fixed width for perfect alignment */
+        text-align: left; /* Optional: Align label text to the right for a clean separation */
+    
+        font-weight: 700;
+        color: var(--accent-teal);
+        /* margin-right: 10px; is replaced by the 'gap' property on the parent */
+        }
+        /* --- ACTION BUTTONS --- */
+        .action-buttons {
+            display: flex;
+            justify-content: space-between; /* push left/right */
+            align-items: center;
+            margin-top: 20px;
+            padding: 0 10px; /* add space inside card edges */
+        }
+
+        .action-buttons form,
+        .action-buttons a {
+            margin: 0;
+            display: inline-block;
+        }
+
+        .action-buttons button {
+            padding: 10px 22px;
+            font-size: 1rem;
+            border: none;
             border-radius: 6px;
             cursor: pointer;
-            min-width: 140px;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
-        .button-row button:hover {
-            background-color: #0056b3;
+
+        .cancel-btn {
+            background-color: #f8031c;
+            color: white;
+            box-shadow: 0 3px 10px rgba(248, 3, 28, 0.4);
         }
-        .appointment-card {
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 15px 20px;
-            margin-bottom: 20px;
-            background-color: #f9f9f9;
+
+        .cancel-btn:hover {
+            background-color: #c70012;
+            transform: scale(1.05);
         }
-        .appointment-card p {
-            margin: 6px 0;
+
+        .reschedule-btn {
+            background-color: #1dbfa8;
+            color: #181c23;
+            box-shadow: 0 3px 10px rgba(29, 191, 168, 0.4);
         }
+
+        .reschedule-btn:hover {
+            background-color: #19a893;
+            transform: scale(1.05);
+        }
+
+        /* --- ERROR BOX --- */
         .error {
-            color: red;
+            color: var(--error-red);
             text-align: center;
-            font-weight: bold;
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 68, 102, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(255, 68, 102, 0.2);
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 480px) {
+            body {
+                margin: 20px 12px 30px;
+                max-width: 100%;
+            }
+
+            .appointment-card {
+                padding: 16px 20px;
+            }
+
+            .button-row button {
+                min-width: 120px;
+                padding: 10px 18px;
+                font-size: 14px;
+            }
+.appointment-card p {
+    display: grid;
+    grid-template-columns: 150px 1fr; /* label | value */
+    margin: 8px 0;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+            .appointment-card p strong {
+                 flex: 0 0 150px; /* fixed width for labels */
+                color: var(--accent-teal);
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                padding: 0;
+            }
+
+            .action-buttons button {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -67,21 +214,37 @@
 
     {% if appointment %}
         {% for a in appointment %}
-            <div class="appointment-card">
-                <p><strong>Customer Name:</strong> {{ a.customer_name }}</p>
-                <p><strong>Phone Number:</strong> {{ a.phone_number }}</p>
-                <p><strong>Device:</strong> {{ a.device }}</p>
-                <p><strong>Problem:</strong> {{ a.problem }}</p>
-                <p><strong>Appointment Date:</strong> {{ a.appointment_date }}</p>
-                <p><strong>Status:</strong> {{ a.status }}</p>
-                <p><strong>Token Number:</strong> {{ a.token_number }}</p>
+        <div class="appointment-card">
+            <p><strong>Customer Name:</strong> {{ a.customer_name }}</p>
+            <p><strong>Phone Number:</strong> {{ a.phone_number }}</p>
+            <p><strong>Device:</strong> {{ a.device }}</p>
+            <p><strong>Problem:</strong> {{ a.problem }}</p>
+            <p><strong>Appointment Date:</strong> {{ a.appointment_date.strftime("%d-%m-%Y %I:%M %p") }}</p>
+            <p><strong>Status:</strong> {{ a.status }}</p>
+            <p><strong>Token Number:</strong> {{ a.token_number }}</p>
+
+            {% if a.status == 'Pending' %}
+            <div class="action-buttons">
+                <form action="{{ url_for('cancel_appointment', id=a.id) }}" method="post" onsubmit="return confirmCancel();">
+                    <button type="submit" class="cancel-btn">Cancel</button>
+                </form>
+                <a href="{{ url_for('book_appointment') }}?customer_name={{ a.customer_name | urlencode }}&phone_number={{ a.phone_number | urlencode }}&address={{ a.address | urlencode }}&device={{ a.device | urlencode }}&problem={{ a.problem | urlencode }}&appointment_date={{ a.appointment_date.strftime('%Y-%m-%dT%H:%M') }}&reschedule_id={{ a.id }}">
+                    <button class="reschedule-btn">Update</button>
+                </a>
             </div>
+            {% endif %}
+        </div>
         {% endfor %}
     {% elif error %}
         <p class="error">{{ error }}</p>
     {% else %}
-        <p>No appointments found.</p>
+        <p class="error">No appointments found.</p>
     {% endif %}
 
+    <script>
+    function confirmCancel() {
+        return confirm("Are you sure you want to cancel this appointment?");
+    }
+    </script>
 </body>
 </html>
