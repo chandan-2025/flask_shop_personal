@@ -3,47 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soundbox Repair Shop</title>
+    <title>Sahu Electricals | Professional Equipment Repairs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* --- Professional Dark Theme --- */
+        :root {
+            --bg-primary: #181c23; /* Deep Charcoal Slate */
+            --bg-secondary: #21252e; /* Graphite Blue-Gray */
+            --text-main: #e4e6eb; /* Soft white-gray text */
+            --text-muted: #a0a4ab; /* Muted neutral text */
+            --accent-teal: #1dbfa8; /* Soft professional teal accent */
+            --accent-gray: #889199; /* Silver-gray accent */
+            --header-bg: rgba(24, 28, 35, 0.95);
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-main);
+            background-color: var(--bg-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
         }
 
-        h1 {
-            margin-bottom: 40px;
+        a { text-decoration: none; color: var(--accent-teal); }
+
+        h1, h2, h3 {
+            margin: 0;
+            line-height: 1.2;
+            font-weight: 600;
         }
 
-        a button {
-            padding: 12px 20px;
-            margin: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #007BFF;
-            color: white;
+        [data-animate] {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        [data-animate].visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* --- Header --- */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--header-bg);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-teal);
+            letter-spacing: 0.5px;
+        }
+        .signin-btn {
+            padding: 6px 14px;
+            background: var(--accent-teal);
+            color: var(--bg-primary);
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+        .signin-btn:hover {
+            background: #19a893;
+            transform: scale(1.05);
         }
 
-        a button:hover {
-            background-color: #0056b3;
+        /* --- HERO --- */
+        .hero {
+            background: linear-gradient(145deg, #101319, #181c23);
+            text-align: center;
+            padding: 160px 20px 120px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .hero h2 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 20px;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .btn-primary {
+            padding: 16px 40px;
+            font-size: 17px;
+            background: var(--accent-teal);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin: 10px 8px;
+            text-align: center;
+            text-decoration: none;
+        }
+        .btn-primary:hover {
+            background: #19a893;
+            transform: scale(1.05);
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+
+        /* --- Section --- */
+        section {
+            padding: 100px 0;
+        }
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            color: var(--accent-teal);
+            margin-bottom: 15px;
+        }
+        .section-sub {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 50px;
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        /* --- About --- */
+        .about {
+            background: var(--bg-secondary);
+        }
+        .about p {
+            max-width: 850px;
+            margin: 25px auto 0;
+            font-size: 1.1rem;
+            color: var(--text-main);
+            text-align: center;
+        }
+
+        /* --- Features (Cards) --- */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+        .feature-box {
+            background: #1f232b;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            text-align: center;
+            padding: 50px 35px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .feature-box:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            border-color: var(--accent-teal);
+        }
+        .feature-box img {
+            max-width: 60px;
+            margin-bottom: 20px;
+            filter: brightness(0) invert(0.8);
+        }
+        .feature-box h3 {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+            color: var(--text-main);
+        }
+        .feature-box p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* --- Contact --- */
+        .contact {
+            background: var(--bg-primary);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .contact-info {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 50px;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--text-main);
+        }
+        .map-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+        }
+
+        /* --- CTA --- */
+        .cta {
+            text-align: center;
+            background: linear-gradient(90deg, #19a893, #1dbfa8);
+            color: var(--bg-primary);
+            padding: 80px 20px;
+        }
+        .cta h2 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: var(--bg-primary);
+        }
+        .cta button {
+            padding: 15px 35px;
+            background: var(--bg-primary);
+            color: var(--text-main);
+            font-weight: 700;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+        }
+        .cta button:hover {
+            background: #232832;
+            transform: scale(1.05);
+        }
+
+        /* --- Footer --- */
+        footer {
+            background: #10141a;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 30px;
+            font-size: 0.95rem;
+            border-top: 2px solid var(--accent-gray);
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            header { padding: 12px 20px; }
+            .hero { padding: 120px 15px 90px; }
+            .hero h2 { font-size: 2.4rem; }
+            section { padding: 80px 0; }
+            .signin-btn { font-size: 14px; padding: 8px 18px; }
+        }
+        @media (max-width: 480px) {
+            .hero h2 { font-size: 1.9rem; }
+            .hero p { font-size: 1rem; }
+            iframe { height: 300px; }
         }
     </style>
 </head>
 <body>
-    <h1>Welcome to the Soundbox Repair Shop</h1>
 
-    <a href="{{ url_for('book_appointment') }}">
-        <button>📅 Book an Appointment</button>
-    </a>
+    <header>
+        <h1>Sahu Electricals</h1>
+        <a href="{{ url_for('admin_dashboard') }}">
+        <button class="signin-btn">Admin Sign In</button>
+        </a>
+    </header>
 
-    <a href="{{ url_for('check_status') }}">
-        <button>🔍 Check Status</button>
-    </a>
+    <section class="hero" data-animate>
+        <h2>Professional Repair Solutions That Last</h2>
+        <p>Precision-engineered, expert-led repair and maintenance services for devices, appliances, and industrial systems.</p>
+        <a href="{{ url_for('book_appointment') }}" class="btn-primary">📅 Book an Appointment</a>
+        <a href="{{ url_for('check_status') }}" class="btn-primary">🔍 Check Status</a>
+    </section>
 
-    <a href="{{ url_for('admin_dashboard') }}">
-        <button>🛠️ Admin Dashboard</button>
-    </a>
+    <section class="about" data-animate>
+        <div class="container">
+            <h2 class="section-title">Built on Experience and Trust</h2>
+            <p>Our certified specialists combine field experience with engineering-grade diagnostic systems to deliver accurate, reliable, and sustainable repair solutions. Every project is guided by quality assurance and accountability.</p>
+        </div>
+    </section>
+
+    <section class="features" data-animate>
+        <div class="container">
+            <h2 class="section-title">Our Core Services</h2>
+            <p class="section-sub">Comprehensive support for home, enterprise, and industrial clients.</p>
+
+            <div class="features-grid">
+                <div class="feature-box">
+                    <img src="https://img.icons8.com/ios-filled/100/ffffff/laptop.png" alt="Electronics">
+                    <h3>Electronics & IT Equipment</h3>
+                    <p>Precision repair for laptops, tablets, and office hardware with guaranteed manufacturer-grade parts.</p>
+                </div>
+                <div class="feature-box">
+                    <img src="https://img.icons8.com/ios-filled/100/ffffff/tools.png" alt="Appliances">
+                    <h3>Domestic & Commercial Appliances</h3>
+                    <p>Energy-efficient servicing and repair for HVAC, refrigeration, and large-scale household systems.</p>
+                </div>
+                <div class="feature-box">
+                    <img src="https://img.icons8.com/ios-filled/100/ffffff/industrial-scales.png" alt="Industrial">
+                    <h3>Industrial Maintenance</h3>
+                    <p>Full-spectrum diagnostics and system upkeep for factories, equipment, and complex installations.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact" data-animate>
+        <div class="container">
+            <h2 class="section-title">Contact & Location</h2>
+            <div class="contact-info">
+                <p>Sahu Electricals<br>879 Business Plaza, Connaught Place, New Delhi, India<br>
+                Phone: 9040587631<br>Email: sahuelectricals@gmail.com</p>
+            </div>
+            <div class="map-container">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3500.500926486495!2d77.216721!3d28.644800!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce5a8e8f4d6b9%3A0xa0e8458b2cdbf3ec!2sConnaught%20Place%2C%20New%20Delhi!5e0!3m2!1sen!2sin!4v1665667892321!5m2!1sen!2sin" loading="lazy"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- <section class="cta" data-animate>
+        <h2>Partner with a Service Team You Can Count On</h2>
+        <button>Request a Quote</button>
+    </section> -->
+
+    <footer>
+        <p>© Sahu Electricals | All Rights Reserved</p>
+    </footer>
+
+    <script>
+        const animatedElements = document.querySelectorAll('[data-animate]');
+        const onScroll = () => {
+            animatedElements.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top <= window.innerHeight - 80) {
+                    el.classList.add('visible');
+                }
+            });
+        };
+        window.addEventListener('scroll', onScroll);
+        window.addEventListener('load', onScroll);
+    </script>
+
 </body>
 </html>
