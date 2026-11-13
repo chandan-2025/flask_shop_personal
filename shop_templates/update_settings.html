@@ -1,118 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Update Settings - Soundbox Repair Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
     <style>
-        /* General Styles */
+        :root {
+            --bg-primary: #181c23;
+            --bg-secondary: #21252e;
+            --text-main: #e4e6eb;
+            --text-muted: #a0a4ab;
+            --accent-teal: #1dbfa8;
+            --accent-gray: #889199;
+            --btn-success: #28a745;
+            --btn-success-hover: #218838;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f4f6f8;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
             margin: 0;
             padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: start;
+            padding-top: 60px;
+            box-sizing: border-box;
         }
-
         header {
-            background: #007bff;
-            color: white;
-            padding: 20px 40px;
+            width: 100%;
+            background: var(--accent-teal);
+            color: var(--bg-primary);
+            padding: 20px 0;
             text-align: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
         }
-
         main {
-            padding: 30px 60px;
+            width: 100%;
+            max-width: 480px;
+            margin-top: 100px;
+            background: var(--bg-secondary);
+            padding: 30px 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+            box-sizing: border-box;
         }
-
-        h1 {
-            margin: 0;
-            font-size: 1.8rem;
-        }
-
-        /* Top Actions - Buttons at top corners */
         .top-actions {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             margin-bottom: 25px;
         }
-
         .top-actions a {
-            display: inline-block;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
+            background-color: var(--accent-teal);
+            color: var(--bg-primary);
             padding: 10px 18px;
-            border-radius: 5px;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
+            border-radius: 6px;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
-
         .top-actions a:hover {
-            background-color: #0056b3;
+            background-color: #19a893;
+            transform: scale(1.05);
         }
-
-        /* Form Styles */
-        .settings-form {
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .settings-form label {
-            font-weight: 600;
-            margin-bottom: 8px;
+        form label {
             display: block;
-            color: #495057;
-        }
-
-        .settings-form input {
-            width: 100%;
-            padding: 10px;
-            font-size: 1rem;
-            border: 1.5px solid #ced4da;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            background: #f9f9f9;
-        }
-
-        .settings-form input:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-
-        .settings-form button {
-            display: inline-block;
-            background-color: #28a745;
-            color: white;
+            margin-bottom: 8px;
             font-weight: 600;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-top: 20px;
+            color: var(--text-main);
+        }
+        form input[type="number"] {
             width: 100%;
+            padding: 12px 14px;
+            font-size: 1rem;
+            border: 1.5px solid var(--accent-gray);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background: var(--bg-primary);
+            color: var(--text-main);
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
         }
-
-        .settings-form button:hover {
-            background-color: #218838;
+        form input[type="number"]:focus {
+            border-color: var(--accent-teal);
+            outline: none;
+            background: #242a33;
         }
-
+        form button {
+            width: 100%;
+            background-color: var(--btn-success);
+            font-weight: 700;
+            color: white;
+            padding: 14px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 3px 9px rgba(40, 167, 69, 0.6);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        form button:hover {
+            background-color: var(--btn-success-hover);
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>Update Daily Appointment Limit</h1>
+    Update Daily Appointment Limit
 </header>
 
 <main>
-    <!-- Top Action Buttons -->
     <div class="top-actions">
         <a href="{{ url_for('home') }}">🏠 Back to Home</a>
         <a href="{{ url_for('admin_dashboard') }}">📋 Admin Dashboard</a>
@@ -121,10 +130,9 @@
     <form method="POST" class="settings-form">
         <label for="daily_appointment_limit">Daily Appointment Limit:</label>
         <input type="number" id="daily_appointment_limit" name="daily_appointment_limit" 
-               value="{{ settings.daily_appointment_limit if settings else 10 }}" required>
+               value="{{ settings.daily_appointment_limit if settings else 10 }}" required min="1" />
         <button type="submit">Save</button>
     </form>
-
 </main>
 
 </body>
