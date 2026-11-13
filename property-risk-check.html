@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Property Risk Check — Prototype</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<style>
+  :root{
+    --accent:#1d6f5b; --accent-dark:#0f4b3d; --bg:#f6f5f1; --card:#ffffff;
+    --border:#e2e0d8; --text:#1f2420; --text-muted:#6b6f68;
+    --green:#e5f4ea; --green-text:#1e7d3a;
+    --amber:#fdf3df; --amber-text:#95650c;
+    --red:#fdeaea; --red-text:#b3261e;
+    --blue:#e7f0fb; --blue-text:#1a56a0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased;
+  }
+  #app{max-width:520px; margin:0 auto; min-height:100vh; background:var(--bg); padding-bottom:2rem;}
+  .screen{display:none; padding:1.25rem 1.25rem 0;}
+  .screen.active{display:block; animation:fadeIn .25s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  header.top{
+    padding:1.5rem 1.25rem 1rem; text-align:center;
+  }
+  h1.title{font-size:1.45rem; font-weight:700; margin:0 0 .4rem; line-height:1.3;}
+  p.subtitle{color:var(--text-muted); font-size:.95rem; margin:0; line-height:1.5;}
+
+  .method-card{
+    background:var(--card); border:1px solid var(--border); border-radius:16px;
+    padding:1rem 1.1rem; margin-bottom:.9rem; cursor:pointer; transition:.15s;
+  }
+  .method-card:active{transform:scale(.98);}
+  .method-card:hover{border-color:var(--accent);}
+  .method-card .icon{font-size:1.6rem; margin-bottom:.3rem;}
+  .method-card .label{font-weight:600; font-size:1rem; margin-bottom:.2rem;}
+  .method-card .desc{font-size:.85rem; color:var(--text-muted);}
+
+  .inline-input-area{margin-top:.7rem; display:none;}
+  .inline-input-area.open{display:block;}
+  input[type="text"]{
+    width:100%; padding:.75rem .9rem; border-radius:10px; border:1px solid var(--border);
+    font-size:.95rem; background:#fafaf7; margin-bottom:.6rem;
+  }
+  input[type="text"]:focus{outline:none; border-color:var(--accent);}
+
+  button.primary{
+    width:100%; padding:.85rem; border:none; border-radius:12px; background:var(--accent);
+    color:#fff; font-size:1rem; font-weight:600; cursor:pointer; transition:.15s;
+  }
+  button.primary:hover{background:var(--accent-dark);}
+  button.primary:disabled{background:#b7b7ae; cursor:not-allowed;}
+  button.secondary{
+    width:100%; padding:.7rem; border:1px solid var(--border); border-radius:12px; background:#fff;
+    color:var(--text); font-size:.9rem; font-weight:600; cursor:pointer; margin-top:.6rem;
+  }
+  .status-msg{font-size:.85rem; color:var(--text-muted); margin-top:.5rem; text-align:center;}
+  .error-msg{font-size:.85rem; color:var(--red-text); margin-top:.5rem; text-align:center;}
+
+  .card-grid{display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-top:1rem;}
+  .type-card{
+    background:var(--card); border:1.5px solid var(--border); border-radius:14px;
+    padding:1.1rem .8rem; text-align:center; cursor:pointer; transition:.15s;
+  }
+  .type-card .icon{font-size:1.8rem; display:block; margin-bottom:.4rem;}
+  .type-card .label{font-size:.88rem; font-weight:600;}
+  .type-card.selected{border-color:var(--accent); background:var(--green);}
+
+  .step-header{display:flex; align-items:center; gap:.5rem; margin-bottom:1rem;}
+  .back-btn{
+    background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--text);
+    padding:.2rem .4rem;
+  }
+  .step-title{font-size:1.1rem; font-weight:700;}
+
+  #map{height:280px; border-radius:14px; overflow:hidden; border:1px solid var(--border); margin-top:.8rem;}
+  .layer-toggle{display:flex; gap:.5rem; margin:.7rem 0;}
+  .layer-toggle button{
+    flex:1; padding:.5rem; border-radius:10px; border:1px solid var(--border); background:#fff;
+    font-size:.85rem; font-weight:600; cursor:pointer;
+  }
+  .layer-toggle button.active{background:var(--accent); color:#fff; border-color:var(--accent);}
+
+  .coord-box{
+    background:var(--card); border:1px solid var(--border); border-radius:12px; padding:.8rem 1rem;
+    margin-top:.8rem; font-size:.9rem; display:flex; justify-content:space-between;
+  }
+  .coord-box .k{color:var(--text-muted);}
+  .coord-box .v{font-weight:600;}
+
+  .result-hero{text-align:center; padding:.5rem 0 1rem;}
+  .result-hero h1{font-size:1.4rem; margin:.3rem 0 .1rem;}
+  .result-hero .loc{color:var(--text-muted); font-size:.9rem;}
+
+  .section-card{
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:1rem 1.1rem; margin-bottom:.9rem;
+  }
+  .section-card h3{margin:0 0 .6rem; font-size:.95rem; font-weight:700;}
+  .kv-row{display:flex; justify-content:space-between; padding:.35rem 0; font-size:.9rem; border-bottom:1px solid #f0efe9;}
+  .kv-row:last-child{border-bottom:none;}
+  .kv-row .k{color:var(--text-muted);}
+  .kv-row .v{font-weight:600; text-align:right; max-width:60%;}
+
+  .assessment-box{
+    border-radius:16px; padding:1.1rem; text-align:center; margin-bottom:1rem;
+  }
+  .assessment-box.green{background:var(--green); color:var(--green-text);}
+  .assessment-box.amber{background:var(--amber); color:var(--amber-text);}
+  .assessment-box.red{background:var(--red); color:var(--red-text);}
+  .assessment-box.blue{background:var(--blue); color:var(--blue-text);}
+  .assessment-box .a-icon{font-size:1.8rem;}
+  .assessment-box .a-title{font-weight:700; font-size:1.05rem; margin:.3rem 0 .2rem;}
+  .assessment-box .a-desc{font-size:.85rem; opacity:.9;}
+
+  .attribution{font-size:.72rem; color:var(--text-muted); text-align:center; margin-top:.5rem;}
+
+  .disclaimer{
+    background:#fdf3df; border:1px solid #f0dfb0; border-radius:12px; padding:.9rem 1rem;
+    font-size:.8rem; color:#6b5410; margin-top:1rem; line-height:1.5;
+  }
+  .disclaimer strong{display:block; margin-bottom:.3rem;}
+
+  .spinner{
+    width:22px; height:22px; border:3px solid #ddd; border-top-color:var(--accent);
+    border-radius:50%; animation:spin .7s linear infinite; margin:1rem auto;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .badge-not-official{
+    display:inline-block; background:#eee; color:var(--text-muted); font-size:.72rem;
+    padding:.2rem .6rem; border-radius:20px; margin-top:.3rem;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- SCREEN 1: LANDING -->
+  <div class="screen active" id="screen-landing">
+    <header class="top">
+      <h1 class="title">🏠 Check This Property Before You Buy</h1>
+      <p class="subtitle">Explore available geographic information about a property location before making a decision.</p>
+      <span class="badge-not-official">Independent prototype — not an official HYDRAA app</span>
+    </header>
+
+    <div class="method-card" onclick="useCurrentLocation()">
+      <div class="icon">📍</div>
+      <div class="label">Use my current location</div>
+      <div class="desc">We'll ask your browser for permission</div>
+    </div>
+
+    <div class="method-card" onclick="toggleInput('gmaps')">
+      <div class="icon">🔗</div>
+      <div class="label">Paste Google Maps location</div>
+      <div class="desc">Paste a Google Maps link or coordinates</div>
+      <div class="inline-input-area" id="gmaps-input" onclick="event.stopPropagation()">
+        <input type="text" id="gmaps-url" placeholder="https://maps.google.com/?q=17.3850,78.4867" />
+        <button class="primary" onclick="handleGmapsSubmit(event)">Extract location</button>
+        <div id="gmaps-error" class="error-msg" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div class="method-card" onclick="toggleInput('search')">
+      <div class="icon">🔎</div>
+      <div class="label">Search address</div>
+      <div class="desc">Type a place name or address</div>
+      <div class="inline-input-area" id="search-input" onclick="event.stopPropagation()">
+        <input type="text" id="address-query" placeholder="e.g. Gachibowli, Hyderabad" />
+        <button class="primary" onclick="handleAddressSearch(event)">Search</button>
+        <div id="search-status" class="status-msg" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div id="landing-error" class="error-msg" style="display:none;"></div>
+  </div>
+
+  <!-- SCREEN 2: PROPERTY TYPE -->
+  <div class="screen" id="screen-type">
+    <div class="step-header">
+      <button class="back-btn" onclick="goTo('screen-landing')">←</button>
+      <div class="step-title">What are you planning to buy?</div>
+    </div>
+    <div class="card-grid">
+      <div class="type-card" data-type="Apartment" onclick="selectType(this,'Apartment')"><span class="icon">🏢</span><span class="label">Apartment</span></div>
+      <div class="type-card" data-type="House" onclick="selectType(this,'House')"><span class="icon">🏠</span><span class="label">House</span></div>
+      <div class="type-card" data-type="Land / Plot" onclick="selectType(this,'Land / Plot')"><span class="icon">🌳</span><span class="label">Land / Plot</span></div>
+      <div class="type-card" data-type="Commercial Property" onclick="selectType(this,'Commercial Property')"><span class="icon">🏬</span><span class="label">Commercial</span></div>
+      <div class="type-card" data-type="Not Sure" onclick="selectType(this,'Not Sure')" style="grid-column:1 / -1;"><span class="icon">❓</span><span class="label">Not sure</span></div>
+    </div>
+    <button class="primary" style="margin-top:1.2rem;" id="type-continue" disabled onclick="goTo('screen-map')">Check property →</button>
+  </div>
+
+  <!-- SCREEN 3: MAP CONFIRMATION -->
+  <div class="screen" id="screen-map">
+    <div class="step-header">
+      <button class="back-btn" onclick="goTo('screen-type')">←</button>
+      <div class="step-title">Confirm the location</div>
+    </div>
+    <div class="layer-toggle">
+      <button class="active" id="btn-map-layer" onclick="setLayer('map')">Map</button>
+      <button id="btn-sat-layer" onclick="setLayer('satellite')">Satellite</button>
+    </div>
+    <div id="map"></div>
+    <div class="attribution" id="layer-attribution">© OpenStreetMap contributors</div>
+    <div class="coord-box">
+      <div><span class="k">Latitude</span><br><span class="v" id="confirm-lat">—</span></div>
+      <div><span class="k">Longitude</span><br><span class="v" id="confirm-lng">—</span></div>
+    </div>
+    <button class="primary" style="margin-top:1rem;" onclick="confirmLocation()">✓ Confirm this location</button>
+    <button class="secondary" onclick="goTo('screen-landing')">This isn't the right spot — start over</button>
+  </div>
+
+  <!-- SCREEN 4: RESULTS -->
+  <div class="screen" id="screen-result">
+    <div class="step-header">
+      <button class="back-btn" onclick="goTo('screen-map')">←</button>
+      <div class="step-title">Property overview</div>
+    </div>
+
+    <div class="result-hero">
+      <div class="loc" id="result-location">Loading location…</div>
+    </div>
+
+    <div class="section-card">
+      <h3>Details</h3>
+      <div class="kv-row"><span class="k">Coordinates</span><span class="v" id="result-coords">—</span></div>
+      <div class="kv-row"><span class="k">Property type</span><span class="v" id="result-type">—</span></div>
+    </div>
+
+    <div class="section-card">
+      <div class="layer-toggle">
+        <button class="active" id="btn-result-map" onclick="setResultLayer('map')">Map</button>
+        <button id="btn-result-sat" onclick="setResultLayer('satellite')">Satellite</button>
+      </div>
+      <div id="result-map" style="height:220px; border-radius:12px; overflow:hidden; margin-top:.6rem;"></div>
+      <div class="attribution" id="result-attribution">© OpenStreetMap contributors</div>
+    </div>
+
+    <div class="section-card">
+      <h3>Nearby information <span style="font-weight:400; color:var(--text-muted); font-size:.78rem;">(within ~400m, from OpenStreetMap)</span></h3>
+      <div id="nearby-loading"><div class="spinner"></div><div class="status-msg">Fetching nearby geographic data…</div></div>
+      <div id="nearby-content" style="display:none;">
+        <div class="kv-row"><span class="k">🛣️ Nearby roads</span><span class="v" id="nb-roads">—</span></div>
+        <div class="kv-row"><span class="k">🏢 Nearby buildings</span><span class="v" id="nb-buildings">—</span></div>
+        <div class="kv-row"><span class="k">🌊 Water features</span><span class="v" id="nb-water">—</span></div>
+        <div class="kv-row"><span class="k">📏 Nearest water distance</span><span class="v" id="nb-water-dist">—</span></div>
+        <div class="kv-row"><span class="k">📍 Other features</span><span class="v" id="nb-other">—</span></div>
+      </div>
+    </div>
+
+    <div class="assessment-box blue" id="assessment-box">
+      <div class="a-icon">🔵</div>
+      <div class="a-title">Preliminary assessment</div>
+      <div class="a-desc" id="assessment-desc">Gathering data…</div>
+    </div>
+
+    <div class="section-card">
+      <h3>Data sources</h3>
+      <div class="kv-row"><span class="k">Map & nearby features</span><span class="v">OpenStreetMap</span></div>
+      <div class="kv-row"><span class="k">Satellite imagery</span><span class="v">Esri World Imagery</span></div>
+      <div class="kv-row"><span class="k">Address lookup</span><span class="v">OSM Nominatim</span></div>
+    </div>
+
+    <div class="disclaimer">
+      <strong>Prototype disclaimer</strong>
+      This is an independent technology prototype intended to demonstrate the use of publicly available geospatial information. It is not an official HYDRAA or Telangana Government application and does not provide legal clearance, ownership verification, or official approval.
+    </div>
+
+    <button class="secondary" style="margin-bottom:1.5rem;" onclick="resetApp()">Check another property</button>
+  </div>
+
+</div>
+
+<script>
+let state = { lat:null, lng:null, propertyType:null };
+let map, marker, mapLayer, satLayer;
+let resultMap, resultMapLayer, resultSatLayer;
+
+const ESRI_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+const OSM_URL = 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png';
+
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='screen-map') setTimeout(initMap, 50);
+  if(id==='screen-result') setTimeout(initResultMap, 50);
+}
+
+function toggleInput(which){
+  document.querySelectorAll('.inline-input-area').forEach(el=>{
+    if(el.id !== which+'-input') el.classList.remove('open');
+  });
+  document.getElementById(which+'-input').classList.toggle('open');
+}
+
+function showLandingError(msg){
+  const el = document.getElementById('landing-error');
+  el.textContent = msg; el.style.display='block';
+}
+
+function useCurrentLocation(){
+  document.getElementById('landing-error').style.display='none';
+  if(!navigator.geolocation){ showLandingError('Geolocation is not supported by this browser.'); return; }
+  navigator.geolocation.getCurrentPosition(
+    pos=>{ state.lat=pos.coords.latitude; state.lng=pos.coords.longitude; goTo('screen-type'); },
+    err=>{ showLandingError('Could not get your location. Please allow location access, or try another method.'); }
+  );
+}
+
+function handleGmapsSubmit(e){
+  e.stopPropagation();
+  const url = document.getElementById('gmaps-url').value.trim();
+  const errEl = document.getElementById('gmaps-error');
+  errEl.style.display='none';
+  const coords = extractLatLngFromUrl(url);
+  if(!coords){ errEl.textContent='Could not find coordinates in that link. Try pasting a link containing @lat,lng or ?q=lat,lng.'; errEl.style.display='block'; return; }
+  state.lat = coords.lat; state.lng = coords.lng;
+  goTo('screen-type');
+}
+
+function extractLatLngFromUrl(url){
+  // Try plain "lat,lng"
+  let m = url.match(/^\s*(-?\d{1,3}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)\s*$/);
+  if(m) return {lat:parseFloat(m[1]), lng:parseFloat(m[2])};
+  // ?q=lat,lng
+  m = url.match(/[?&]q=(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/);
+  if(m) return {lat:parseFloat(m[1]), lng:parseFloat(m[2])};
+  // @lat,lng,zoom
+  m = url.match(/@(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/);
+  if(m) return {lat:parseFloat(m[1]), lng:parseFloat(m[2])};
+  // ll=lat,lng
+  m = url.match(/[?&]ll=(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/);
+  if(m) return {lat:parseFloat(m[1]), lng:parseFloat(m[2])};
+  return null;
+}
+
+async function handleAddressSearch(e){
+  e.stopPropagation();
+  const q = document.getElementById('address-query').value.trim();
+  const statusEl = document.getElementById('search-status');
+  if(!q){ return; }
+  statusEl.style.display='block'; statusEl.textContent='Searching…'; statusEl.className='status-msg';
+  try{
+    const resp = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q));
+    const data = await resp.json();
+    if(!data || data.length===0){
+      statusEl.textContent='No results found. Try a more specific address.'; statusEl.className='error-msg'; return;
+    }
+    state.lat = parseFloat(data[0].lat); state.lng = parseFloat(data[0].lon);
+    goTo('screen-type');
+  }catch(err){
+    statusEl.textContent='Search failed. Check your connection and try again.'; statusEl.className='error-msg';
+  }
+}
+
+function selectType(el, type){
+  document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.propertyType = type;
+  document.getElementById('type-continue').disabled = false;
+}
+
+function initMap(){
+  if(map){ map.remove(); }
+  map = L.map('map', {zoomControl:true}).setView([state.lat, state.lng], 16);
+  mapLayer = L.tileLayer(OSM_URL, {attribution:'© OpenStreetMap contributors', maxZoom:18});
+  satLayer = L.tileLayer(ESRI_URL, {attribution:'Tiles © Esri', maxZoom:19});
+  mapLayer.addTo(map);
+  marker = L.marker([state.lat, state.lng], {draggable:true}).addTo(map);
+  marker.on('dragend', ()=>{
+    const p = marker.getLatLng();
+    state.lat = p.lat; state.lng = p.lng;
+    updateCoordDisplay();
+  });
+  updateCoordDisplay();
+}
+
+function updateCoordDisplay(){
+  document.getElementById('confirm-lat').textContent = state.lat.toFixed(6);
+  document.getElementById('confirm-lng').textContent = state.lng.toFixed(6);
+}
+
+function setLayer(which){
+  document.getElementById('btn-map-layer').classList.toggle('active', which==='map');
+  document.getElementById('btn-sat-layer').classList.toggle('active', which==='satellite');
+  document.getElementById('layer-attribution').textContent = which==='map' ? '© OpenStreetMap contributors' : 'Tiles © Esri — World Imagery';
+  if(which==='map'){ map.removeLayer(satLayer); mapLayer.addTo(map); }
+  else{ map.removeLayer(mapLayer); satLayer.addTo(map); }
+}
+
+function confirmLocation(){
+  goTo('screen-result');
+  loadResults();
+}
+
+function initResultMap(){
+  if(resultMap){ resultMap.remove(); }
+  resultMap = L.map('result-map', {zoomControl:false, dragging:true, scrollWheelZoom:false}).setView([state.lat, state.lng], 16);
+  resultMapLayer = L.tileLayer(OSM_URL, {attribution:'© OpenStreetMap contributors', maxZoom:18});
+  resultSatLayer = L.tileLayer(ESRI_URL, {attribution:'Tiles © Esri', maxZoom:19});
+  resultMapLayer.addTo(resultMap);
+  L.marker([state.lat, state.lng]).addTo(resultMap);
+}
+
+function setResultLayer(which){
+  document.getElementById('btn-result-map').classList.toggle('active', which==='map');
+  document.getElementById('btn-result-sat').classList.toggle('active', which==='satellite');
+  document.getElementById('result-attribution').textContent = which==='map' ? '© OpenStreetMap contributors' : 'Tiles © Esri — World Imagery';
+  if(which==='map'){ resultMap.removeLayer(resultSatLayer); resultMapLayer.addTo(resultMap); }
+  else{ resultMap.removeLayer(resultMapLayer); resultSatLayer.addTo(resultMap); }
+}
+
+async function loadResults(){
+  document.getElementById('result-coords').textContent = state.lat.toFixed(6) + ', ' + state.lng.toFixed(6);
+  document.getElementById('result-type').textContent = state.propertyType || 'Not specified';
+  document.getElementById('result-location').textContent = 'Looking up location name…';
+
+  document.getElementById('nearby-loading').style.display='block';
+  document.getElementById('nearby-content').style.display='none';
+  document.getElementById('assessment-desc').textContent = 'Gathering data…';
+
+  // Reverse geocode for a human-readable place name
+  reverseGeocode();
+  // Fetch nearby OSM data via Overpass
+  fetchNearbyData();
+}
+
+async function reverseGeocode(){
+  try{
+    const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${state.lat}&lon=${state.lng}`);
+    const data = await resp.json();
+    if(data && data.display_name){
+      const addr = data.address || {};
+      const parts = [addr.suburb || addr.neighbourhood || addr.village, addr.city || addr.town || addr.county, addr.state].filter(Boolean);
+      document.getElementById('result-location').textContent = parts.length ? parts.join(', ') : data.display_name;
+    } else {
+      document.getElementById('result-location').textContent = 'Location name unavailable';
+    }
+  }catch(e){
+    document.getElementById('result-location').textContent = 'Location name unavailable';
+  }
+}
+
+// Ray-casting point-in-polygon test. poly = array of [lat,lng]. point = [lat,lng]
+function pointInPolygon(point, poly){
+  let x = point[1], y = point[0];
+  let inside = false;
+  for(let i=0, j=poly.length-1; i<poly.length; j=i++){
+    let xi = poly[i][1], yi = poly[i][0];
+    let xj = poly[j][1], yj = poly[j][0];
+    let intersect = ((yi>y) !== (yj>y)) && (x < (xj-xi)*(y-yi)/(yj-yi)+xi);
+    if(intersect) inside = !inside;
+  }
+  return inside;
+}
+
+function haversineMeters(lat1,lng1,lat2,lng2){
+  const R=6371000, toRad=d=>d*Math.PI/180;
+  const dLat=toRad(lat2-lat1), dLng=toRad(lng2-lng1);
+  const a=Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(a));
+}
+
+function distancePointToPolygon(point, poly){
+  let min = Infinity;
+  for(const p of poly){
+    const d = haversineMeters(point[0], point[1], p[0], p[1]);
+    if(d<min) min=d;
+  }
+  return min;
+}
+
+async function fetchNearbyData(){
+  const radius = 400;
+  const query = `
+    [out:json][timeout:25];
+    (
+      way["highway"](around:${radius},${state.lat},${state.lng});
+      way["building"](around:${radius},${state.lat},${state.lng});
+      way["natural"="water"](around:${radius},${state.lat},${state.lng});
+      relation["natural"="water"](around:${radius},${state.lat},${state.lng});
+      way["waterway"](around:${radius},${state.lat},${state.lng});
+    );
+    out tags geom 200;
+  `;
+  try{
+    const resp = await fetch('https://overpass-api.de/api/interpreter', {
+      method:'POST', body:'data=' + encodeURIComponent(query)
+    });
+    if(!resp.ok) throw new Error('Overpass error');
+    const data = await resp.json();
+    const elements = data.elements || [];
+
+    const roads = new Set();
+    const buildings = [];
+    const waterNames = [];
+    const other = [];
+    const waterPolygons = []; // array of {name, coords:[[lat,lng],...]}
+
+    elements.forEach(el=>{
+      const tags = el.tags || {};
+      if(tags.highway){
+        roads.add(tags.name || tags.highway);
+      } else if(tags.building){
+        buildings.push(tags.name || tags.building);
+      } else if(tags.natural==='water' || tags.waterway){
+        const label = tags.name || tags.waterway || 'Unnamed water feature';
+        waterNames.push(label);
+        if(el.geometry && el.geometry.length>2){
+          waterPolygons.push({name:label, coords: el.geometry.map(g=>[g.lat,g.lon])});
+        }
+      } else if(tags.natural || tags.landuse || tags.amenity){
+        other.push(tags.name || tags.natural || tags.landuse || tags.amenity);
+      }
+    });
+
+    document.getElementById('nb-roads').textContent = roads.size>0 ? `${roads.size} found` : 'Data unavailable';
+    document.getElementById('nb-buildings').textContent = buildings.length>0 ? `${buildings.length} mapped` : 'Data unavailable';
+    document.getElementById('nb-water').textContent = waterNames.length>0 ? `${waterNames.length} mapped (${[...new Set(waterNames)].slice(0,2).join(', ')})` : 'None mapped nearby';
+    document.getElementById('nb-other').textContent = other.length>0 ? `${other.length} features` : 'Data unavailable';
+
+    document.getElementById('nearby-loading').style.display='none';
+    document.getElementById('nearby-content').style.display='block';
+
+    // Geometric check: is the pin inside any water polygon, or how close is the nearest one?
+    let insideWater = null;
+    let nearestWaterDist = Infinity;
+    let nearestWaterName = null;
+    waterPolygons.forEach(wp=>{
+      if(pointInPolygon([state.lat, state.lng], wp.coords)){
+        insideWater = wp.name;
+      }
+      const d = distancePointToPolygon([state.lat, state.lng], wp.coords);
+      if(d < nearestWaterDist){ nearestWaterDist = d; nearestWaterName = wp.name; }
+    });
+
+    computeAssessment({
+      roadCount:roads.size, buildingCount:buildings.length,
+      totalTags:elements.length, insideWater, nearestWaterDist, nearestWaterName
+    });
+
+    const distEl = document.getElementById('nb-water-dist');
+    if(insideWater){
+      distEl.textContent = `0m — inside "${insideWater}"`;
+    } else if(nearestWaterDist !== Infinity){
+      distEl.textContent = `${Math.round(nearestWaterDist)}m to "${nearestWaterName}"`;
+    } else {
+      distEl.textContent = 'No mapped water within 400m';
+    }
+  }catch(e){
+    document.getElementById('nb-roads').textContent='Data unavailable';
+    document.getElementById('nb-buildings').textContent='Data unavailable';
+    document.getElementById('nb-water').textContent='Data unavailable';
+    document.getElementById('nb-water-dist').textContent='Data unavailable';
+    document.getElementById('nb-other').textContent='Data unavailable';
+    document.getElementById('nearby-loading').style.display='none';
+    document.getElementById('nearby-content').style.display='block';
+    computeAssessment(null);
+  }
+}
+
+function computeAssessment(d){
+  const box = document.getElementById('assessment-box');
+  const desc = document.getElementById('assessment-desc');
+  const iconEl = box.querySelector('.a-icon');
+  const titleEl = box.querySelector('.a-title');
+
+  if(!d || d.totalTags===0){
+    box.className = 'assessment-box blue';
+    iconEl.textContent='🔵'; titleEl.textContent='Preliminary assessment';
+    desc.textContent = 'More data is required for a meaningful assessment. OpenStreetMap coverage appears limited for this exact spot — use the satellite view above to inspect the location visually.';
+    return;
+  }
+
+  if(d.insideWater){
+    box.className = 'assessment-box red';
+    iconEl.textContent='🔴'; titleEl.textContent='Potential geographic concern';
+    desc.textContent = `This location falls within a mapped water body ("${d.insideWater}") in OpenStreetMap. Compare against the satellite view — this may indicate construction on a water body. This is not a legal determination; verify independently before proceeding.`;
+    return;
+  }
+
+  if(d.nearestWaterDist !== Infinity && d.nearestWaterDist <= 150){
+    box.className = 'assessment-box amber';
+    iconEl.textContent='🟡'; titleEl.textContent='Verification recommended';
+    desc.textContent = `A mapped water body ("${d.nearestWaterName}") is about ${Math.round(d.nearestWaterDist)}m away. Compare with the satellite view and verify locally before proceeding.`;
+    return;
+  }
+
+  if(d.roadCount>0 || d.buildingCount>0){
+    box.className = 'assessment-box green';
+    iconEl.textContent='🟢'; titleEl.textContent='No obvious geographic concern detected';
+    desc.textContent = 'Based on available OpenStreetMap data, this location does not fall within or near any mapped water body. This is not a legal or safety clearance — always verify independently.';
+    return;
+  }
+
+  box.className = 'assessment-box blue';
+  iconEl.textContent='🔵'; titleEl.textContent='Preliminary assessment';
+  desc.textContent = 'More data is required for a meaningful assessment. Use the satellite view to inspect the location visually and verify locally.';
+}
+
+function resetApp(){
+  state = { lat:null, lng:null, propertyType:null };
+  document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('type-continue').disabled = true;
+  document.getElementById('gmaps-url').value='';
+  document.getElementById('address-query').value='';
+  document.querySelectorAll('.inline-input-area').forEach(el=>el.classList.remove('open'));
+  goTo('screen-landing');
+}
+</script>
+</body>
+</html>
